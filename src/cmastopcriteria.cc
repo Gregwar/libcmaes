@@ -261,7 +261,7 @@ namespace libcmaes
 	  double newBestScoreEver = cmas._best_candidates_hist.front().get_fvalue();
 	  double oldBestScoreEver = cmas._best_candidates_hist[bestCandidates - maxSteps -1].get_fvalue();
 
-	  if (newBestScoreEver <= oldBestScoreEver) {
+	  if (newBestScoreEver >= oldBestScoreEver) {
 		LOG_IF(INFO,!cmap._quiet) << "stopping criteria NoProgress\n";
 		return NOPROGRESS;
 	  }

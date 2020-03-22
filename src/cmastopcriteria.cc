@@ -255,7 +255,7 @@ namespace libcmaes
 	  if (maxSteps <= 0) 
 	  	return CONT;
 	  int bestCandidates = cmas._best_candidates_hist.size();
-	  if (bestCandidates < maxSteps) 
+	  if (bestCandidates <= maxSteps) 
 	  	return CONT;
 
 	  double newBestScoreEver = cmas._best_candidates_hist.front().get_fvalue();

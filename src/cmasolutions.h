@@ -497,6 +497,9 @@ namespace libcmaes
     std::vector<Candidate> _best_candidates_hist; /**< history of best candidate solutions. */
     int _max_hist = -1; /**< max size of the history, keeps memory requirements fixed. */
     
+    std::vector<Candidate> _best_seen_candidates_hist; /**< history of best seen candidate solutions. */
+    int _max_seen_hist = -1; /**< max size of the best seed candidates hist */
+    
     double _max_eigenv = 0.0; /**< max eigenvalue, for termination criteria. */
     double _min_eigenv = 0.0; /**< min eigenvalue, for termination criteria. */
     dVec _leigenvalues; /**< last computed eigenvalues, for termination criteria. */

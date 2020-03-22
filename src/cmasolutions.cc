@@ -74,6 +74,7 @@ namespace libcmaes
     _candidates.resize(p._lambda);
     _kcand = std::min(p._lambda-1,static_cast<int>(1.0+ceil(0.1+p._lambda/4.0)));
     _max_hist = (p._max_hist > 0) ? p._max_hist : static_cast<int>(10+ceil(30*p._dim/p._lambda));
+    _max_seen_hist = p._no_progress_steps > 0 ? p._no_progress_steps : -1;
     
     if (static_cast<CMAParameters<TGenoPheno>&>(p)._vd)
       {
@@ -117,6 +118,13 @@ namespace libcmaes
 	_best_seen_candidate = _candidates.at(0);
 	_best_seen_iter = _niter;
       }
+
+    if (_max_seen_hist > 0) {
+        _best_seen_candidates_hist.push_back(_best_seen_candidate);
+        if (_best_seen_candidates_hist.size() > _max_seen_hist) {
+          _best_seen_candidates_hist.erase(_best_seen_candidates_hist.begin());
+        }
+    }
 
     // store the worst seen candidate.
     if ((_niter == 0 && !_worst_seen_candidate.get_x_size()) || _candidates.back().get_fvalue() > _worst_seen_candidate.get_fvalue())

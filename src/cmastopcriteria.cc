@@ -48,6 +48,7 @@ namespace libcmaes
                     {NOEFFECTCOOR,"[Partial Success] Mean remains constant in coordinates"},
                     {MAXFEVALS,"The maximum number of function evaluations allowed for optimization has been reached"},
                     {MAXITER,"The maximum number of iterations specified for optimization has been reached"},
+		    {NOPROGRESS,"The maximum number of steps with no progress is reached"},
                     {FTARGET,"[Success] The objective function target value has been reached"}};
 
   // computes median of a vector.
@@ -248,6 +249,26 @@ namespace libcmaes
 	return NOEFFECTCOOR;
       };
     _scriteria.insert(std::pair<int,StopCriteria<TGenoPheno> >(NOEFFECTCOOR,StopCriteria<TGenoPheno>(noEffectCoor)));
+    StopCriteriaFunc<TGenoPheno> noProgress = [](const CMAParameters<TGenoPheno> &cmap, const CMASolutions &cmas)
+      {
+	  int maxSteps = cmap.get_no_progress_steps();
+	  if (maxSteps <= 0) 
+	  	return CONT;
+	  int bestCandidates = cmas._best_candidates_hist.size();
+	  if (bestCandidates < maxSteps) 
+	  	return CONT;
+
+	  double newBestScoreEver = cmas._best_candidates_hist.front().get_fvalue();
+	  double oldBestScoreEver = cmas._best_candidates_hist[bestCandidates - maxSteps -1].get_fvalue();
+
+	  if (newBestScoreEver <= oldBestScoreEver) {
+		LOG_IF(INFO,!cmap._quiet) << "stopping criteria NoProgress\n";
+		return NOPROGRESS;
+	  }
+
+	  return CONT;
+      };
+    _scriteria.insert(std::pair<int,StopCriteria<TGenoPheno> >(NOPROGRESS,StopCriteria<TGenoPheno>(noProgress)));
   }
 
   template <class TGenoPheno>

@@ -306,6 +306,13 @@ namespace libcmaes
       {
 	return _ftolerance;
       }
+
+      void set_no_progress_steps(const int &v) { _no_progress_steps = v; }
+
+      inline int get_no_progress_steps() const
+      {
+    return _no_progress_steps;
+      }
       
       /**
        * \brief sets parameter tolerance as stopping criteria for TolX.
@@ -567,6 +574,7 @@ namespace libcmaes
       double _ftarget = -std::numeric_limits<double>::infinity(); /**< optional objective function target value. */
       double _ftolerance = 1e-12; /**< tolerance of the best function values during the last 10+(30*dim/lambda) steps (TolHistFun). */ 
       double _xtol = 1e-12; /**< tolerance on parameters error. */
+      int _no_progress_steps = -1; /**< maximum acceptable steps without progress. */
       
       uint64_t _seed = 0; /**< seed for random generator. */
       int _algo = 0; /**< selected algorithm. */

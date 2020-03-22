@@ -48,7 +48,8 @@ namespace libcmaes
     NOEFFECTCOOR = 4, // partial success
     MAXFEVALS = 8,
     MAXITER = 9,
-    FTARGET = 10 // success
+    FTARGET = 10, // success
+    NOPROGRESS = 11
   };
 
   template <class TGenoPheno=NoBoundStrategy>

@@ -43,8 +43,10 @@ boost::function<double(const boost::python::list&,const int&)> fitfunc_bf(fitfun
 
 /* wrapper to cmaes high level function. */
 template <class TGenoPheno=GenoPheno<NoBoundStrategy>>
-  CMASolutions pcmaes(boost::function<double(const boost::python::list&,const int&)>& fitfunc_bf,
-  CMAParameters<TGenoPheno> &parameters)
+  CMASolutions pcmaes_progress(boost::function<double(const boost::python::list&,const int&)>& fitfunc_bf,
+  CMAParameters<TGenoPheno> &parameters,
+  boost::function<int(const CMASolutions &cmasols)> progfunc_bf
+  )
   {
     FitFunc fpython = [fitfunc_bf](const double *x, const int N)
       {
@@ -53,7 +55,28 @@ template <class TGenoPheno=GenoPheno<NoBoundStrategy>>
 	  plx.append(x[i]);
 	return fitfunc_bf(plx,N);
       };
-    return cmaes(fpython,parameters);
+
+      ProgressFunc<CMAParameters<TGenoPheno>,CMASolutions> progressFunc = 
+      [progfunc_bf](const CMAParameters<TGenoPheno> &cmaparams, const CMASolutions &cmasols) {
+              return progfunc_bf(cmasols);
+      };
+      return cmaes(fpython,parameters,progressFunc);
+  }
+
+  template <class TGenoPheno=GenoPheno<NoBoundStrategy>>
+  CMASolutions pcmaes(boost::function<double(const boost::python::list&,const int&)>& fitfunc_bf,
+  CMAParameters<TGenoPheno> &parameters
+  )
+  {
+      FitFunc fpython = [fitfunc_bf](const double *x, const int N)
+      {
+	boost::python::list plx;
+	for (int i=0;i<N;i++) // XXX: how to avoid the loop ?
+	  plx.append(x[i]);
+	return fitfunc_bf(plx,N);
+      };
+
+      return cmaes(fpython,parameters);
   }
 
 /* wrapper to CMAParameters constructor with vector. */
@@ -418,6 +441,7 @@ BOOST_PYTHON_MODULE(lcmaes)
     
   /*- FitFunc -*/  
   def_function<double(const boost::python::list&,const int&)>("fitfunc_pbf","objective function for python");
+  def_function<int(const CMASolutions &cmasols)>("progfunc_pbf","progress function for python");
   scope().attr("fitfunc_bf") = fitfunc_bf;
   
   /*- solutions object -*/
@@ -466,6 +490,7 @@ BOOST_PYTHON_MODULE(lcmaes)
     
   /*- cmaes header -*/
   def("pcmaes",pcmaes<GenoPheno<NoBoundStrategy>>,args("fitfunc","parameters"),"optimizes a function with unbounded parameters");
+  def("pcmaes_progress",pcmaes_progress<GenoPheno<NoBoundStrategy>>,args("fitfunc","parameters","progress"),"optimizes a function with unbounded parameters using a progress function");
   def("pcmaes_pwqb",pcmaes<GenoPheno<pwqBoundStrategy>>,args("fitfunc","parameters"),"optimizes a function with bounded parameters");
   def("pcmaes_ls",pcmaes<GenoPheno<NoBoundStrategy,linScalingStrategy>>,args("fitfunc","parameters"),"optimizes a function with scaled parameters");
   def("pcmaes_pwqb_ls",pcmaes<GenoPheno<pwqBoundStrategy,linScalingStrategy>>,args("fitfunc","parameters"),"optimizes a function with bounded and scaled parameters");

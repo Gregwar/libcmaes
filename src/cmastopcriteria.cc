@@ -251,15 +251,15 @@ namespace libcmaes
     _scriteria.insert(std::pair<int,StopCriteria<TGenoPheno> >(NOEFFECTCOOR,StopCriteria<TGenoPheno>(noEffectCoor)));
     StopCriteriaFunc<TGenoPheno> noProgress = [](const CMAParameters<TGenoPheno> &cmap, const CMASolutions &cmas)
       {
-	  int maxSteps = cmap.get_no_progress_steps();
+	  int maxSteps = std::min(cmas._max_hist, cmap.get_no_progress_steps());
 	  if (maxSteps <= 0) 
 	  	return CONT;
 	  int bestCandidates = cmas._best_candidates_hist.size();
-	  if (bestCandidates <= maxSteps) 
+	  if (bestCandidates < maxSteps) 
 	  	return CONT;
 
-	  double newBestScoreEver = cmas._best_candidates_hist.front().get_fvalue();
-	  double oldBestScoreEver = cmas._best_candidates_hist[bestCandidates - maxSteps -1].get_fvalue();
+	  double newBestScoreEver = cmas._best_candidates_hist.back().get_fvalue();
+	  double oldBestScoreEver = cmas._best_candidates_hist[bestCandidates - maxSteps].get_fvalue();
 
 	  if (newBestScoreEver >= oldBestScoreEver) {
 		LOG_IF(INFO,!cmap._quiet) << "stopping criteria NoProgress " << 
